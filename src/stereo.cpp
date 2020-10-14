@@ -65,7 +65,7 @@ StereoCamera::StereoCamera(ros::NodeHandle comm_nh, ros::NodeHandle param_nh) :
   right_device = "/dev/video1";
   center_device = "/dev/video2";
   center2_device = "/dev/video4";
-  five_device = "/dev/video5";
+  five_device = "/dev/video3";
   frame = "camera";
   rotate_left = false;
   rotate_right = false;
@@ -215,6 +215,7 @@ StereoCamera::StereoCamera(ros::NodeHandle comm_nh, ros::NodeHandle param_nh) :
     cam_center2->set_v4l2_control(V4L2_CID_POWER_LINE_FREQUENCY, val, "power_line_frequency");
     cam_five->set_v4l2_control(V4L2_CID_POWER_LINE_FREQUENCY, val, "power_line_frequency");
   }
+
 
   // TODO:
   // - add params for

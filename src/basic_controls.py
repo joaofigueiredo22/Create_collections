@@ -29,10 +29,15 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
+
 import rospy
 from sensor_msgs.msg import Image
 import copy
 import cv2
+import glob
+import os
+from os.path import expanduser
+from colorama import Fore
 from cv_bridge import CvBridge, CvBridgeError
 
 from interactive_markers.interactive_marker_server import *
@@ -50,6 +55,21 @@ server = None
 menu_handler = MenuHandler()
 br = None
 counter = 0
+
+
+def save_image(name_cam, number_image, msg):
+
+    print("ill " + Fore.GREEN + "start " + Fore.RESET + name_cam + " image callback")
+    try:
+        # Convert your ROS Image message to OpenCV2
+        cv2_img = bridge.imgmsg_to_cv2(msg, "bgr8")
+    except CvBridgeError, e:
+        print(e)
+    else:
+        # Save your OpenCV2 image as a jpeg
+        cv2.imwrite('dataset/' + str(name_cam) + '_camera_' + str(number_image) + '.jpg', cv2_img)
+        data['collections'][number_image]['data'][str(name_cam) + '_camera']['data_file'] = str(name_cam) + '_camera_' + str(number_image) + '.jpg'
+        print("i" + Fore.RED + " finished " + Fore.RESET + name_cam + " image callback")
 
 def frameCallback( msg ):
     global counter, br
@@ -126,138 +146,71 @@ def json_callback(feedback):
 
 
 def button_callback(feedback):
-    global save_image
     global name_image
+    global name_cam
     global number_image
-    # global D
-    # D['collections'][number_image] = {'data': 'left_camera' 'right_camera'}
+    number_image += 1
     name_image = "left_camera"
-    save_image = 1
+    name_cam = "left"
+
     rospy.Subscriber('left/image_raw', Image, image_callback)
-    save_image = 1
     rospy.Subscriber('center/image_raw', Image, image_callback_1)
-    save_image = 1
     rospy.Subscriber('center2/image_raw', Image, image_callback_2)
-    save_image = 1
     rospy.Subscriber('five/image_raw', Image, image_callback_3)
-    save_image = 1
     rospy.Subscriber('right/image_raw', Image, image_callback_4)
-    # number_image += 1
-    # name_image = "center2_camera"
-    # global sub_once_3
-    # sub_once_3 = rospy.Subscriber('center2/image_raw', Image, image_callback)
-    # name_image = "center3_camera"
-    # global sub_once_4
-    # sub_once_4 = rospy.Subscriber('five/image_raw', Image, image_callback)
-    # name_image = "right_camera"
-    # global sub_once_5
-    # sub_once_5 = rospy.Subscriber('right/image_raw', Image, image_callback)
 
 
 def image_callback(msg):
-    global save_image
     global number_image
     global name_image
+    global name_cam
 
-    if save_image == 1:
-        print("Received an image!")
-        try:
-            # Convert your ROS Image message to OpenCV2
-            cv2_img = bridge.imgmsg_to_cv2(msg, "bgr8")
-        except CvBridgeError, e:
-            print(e)
-        else:
-            # Save your OpenCV2 image as a jpeg
-            # if i == 1:
-            cv2.imwrite('dataset/' + str(name_image) + '_' + str(number_image) + '.jpg', cv2_img)
-            data['collections'][number_image]['data']['left_camera']['data_file'] = 'left_camera_' + str(number_image) + '.jpg'
-            # save_image = 0
+    if name_cam == "left":
+        save_image(name_cam, number_image, msg)
+        name_cam = "center"
+
 
 def image_callback_1(msg):
-    global save_image
     global number_image
     global name_image
-    global D1
-    if save_image == 1:
-        print("Received an image!")
-        try:
-            # Convert your ROS Image message to OpenCV2
-            cv2_img = bridge.imgmsg_to_cv2(msg, "bgr8")
-        except CvBridgeError, e:
-            print(e)
-        else:
-            # Save your OpenCV2 image as a jpeg
-            # if i == 1:
-            cv2.imwrite('dataset/center_camera_' + str(number_image) + '.jpg', cv2_img)
-            data['collections'][number_image]['data']['center_camera']['data_file'] = 'center_camera_' + str(
-                number_image) + '.jpg'
-            # sub_once_2.unregister()
-            # number_image += 1
-            save_image = 0
+    global name_cam
+
+    if name_cam == "center":
+        save_image(name_cam, number_image, msg)
+        name_cam = "center2"
+
 
 def image_callback_2(msg):
-    global save_image
+     
     global number_image
     global name_image
-    if save_image == 1:
-        print("Received an image!")
-        try:
-            # Convert your ROS Image message to OpenCV2
-            cv2_img = bridge.imgmsg_to_cv2(msg, "bgr8")
-        except CvBridgeError, e:
-            print(e)
-        else:
-            # Save your OpenCV2 image as a jpeg
-            # if i == 1:
-            cv2.imwrite('dataset/center2_camera_' + str(number_image) + '.jpg', cv2_img)
-            data['collections'][number_image]['data']['center2_camera']['data_file'] = 'center2_camera_' + str(
-                number_image) + '.jpg'
-            # sub_once_2.unregister()
-            # number_image += 1
-            save_image = 0
+    global name_cam
+
+    if name_cam == "center2":
+        save_image(name_cam, number_image, msg)
+        name_cam = "center3"
 
 def image_callback_3(msg):
-    global save_image
+     
     global number_image
     global name_image
-    if save_image == 1:
-        print("Received an image!")
-        try:
-            # Convert your ROS Image message to OpenCV2
-            cv2_img = bridge.imgmsg_to_cv2(msg, "bgr8")
-        except CvBridgeError, e:
-            print(e)
-        else:
-            # Save your OpenCV2 image as a jpeg
-            # if i == 1:
-            cv2.imwrite('dataset/center3_camera_' + str(number_image) + '.jpg', cv2_img)
-            data['collections'][number_image]['data']['center3_camera']['data_file'] = 'center3_camera_' + str(
-                number_image) + '.jpg'
-            # sub_once_2.unregister()
-            # number_image += 1
-            save_image = 0
+    global name_cam
+
+    if name_cam == "center3":
+        save_image(name_cam, number_image, msg)
+        name_cam = "right"
 
 
 def image_callback_4(msg):
-    global save_image
+     
     global number_image
     global name_image
-    if save_image == 1:
-        print("Received an image!")
-        try:
-            # Convert your ROS Image message to OpenCV2
-            cv2_img = bridge.imgmsg_to_cv2(msg, "bgr8")
-        except CvBridgeError, e:
-            print(e)
-        else:
-            # Save your OpenCV2 image as a jpeg
-            # if i == 1:
-            cv2.imwrite('dataset/right_camera_' + str(number_image) + '.jpg', cv2_img)
-            data['collections'][number_image]['data']['right_camera']['data_file'] = 'right_camera_' + str(number_image) + '.jpg'
-            # sub_once_2.unregister()
-            number_image += 1
-            save_image = 0
+    global name_cam
 
+
+    if name_cam == "right":
+        save_image(name_cam, number_image, msg)
+        name_cam = "last"
 
 def makeMenuMarker(position):
     int_marker = InteractiveMarker()
@@ -301,12 +254,22 @@ class AutoTree(dict):
 
 
 if __name__=="__main__":
+
+    # First of all, delete all the files in dataset folder
+    home = expanduser("~")
+    test = home + '/catkin_ws/dataset/*'
+    r = glob.glob(test)
+    print("files")
+    print(r)
+    for i in r:
+        os.remove(i)
+
     rospy.init_node("basic_controls")
     br = TransformBroadcaster()
-    global save_image
+     
     global number_image
     global data
-    number_image = 0
+    number_image = -1
     data = AutoTree()
     data['calibration_config']['calibration_pattern']['size'] = 0.019
     data['calibration_config']['calibration_pattern']['dimensions'] = {0: 9, 1: 6}

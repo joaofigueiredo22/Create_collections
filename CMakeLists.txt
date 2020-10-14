@@ -123,6 +123,8 @@ include_directories(
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/Camera_calibration.cpp
+#   src/${PROJECT_NAME}/stereo.cpp
+#   src/${PROJECT_NAME}/stereo_node.cpp
 # )
 
 ## Add cmake target dependencies of the library
