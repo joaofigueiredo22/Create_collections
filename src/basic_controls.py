@@ -28,7 +28,7 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
-
+import argparse
 
 import rospy
 from sensor_msgs.msg import Image
@@ -51,10 +51,13 @@ import json
 from random import random
 from math import sin
 
+global server
 server = None
 menu_handler = MenuHandler()
 br = None
 counter = 0
+
+
 
 
 def save_image(name_cam, number_image, msg):
@@ -78,6 +81,11 @@ def frameCallback( msg ):
     counter += 1
 
 
+def intrinsic_calibration_callback( msg ):
+    print("msg")
+    print(msg)
+
+
 def processFeedback( feedback ):
     # print(feedback)
 
@@ -91,29 +99,29 @@ def processFeedback( feedback ):
         mp += ", " + str(feedback.mouse_point.z)
         mp += " in frame " + feedback.header.frame_id
 
-    if feedback.event_type == InteractiveMarkerFeedback.BUTTON_CLICK:
-        rospy.loginfo( s + ": button click" + mp + "." )
-    elif feedback.event_type == InteractiveMarkerFeedback.MENU_SELECT:
-        rospy.loginfo( s + ": menu item " + str(feedback.menu_entry_id) + " clicked" + mp + "." )
-    elif feedback.event_type == InteractiveMarkerFeedback.POSE_UPDATE:
-        rospy.loginfo( s + ": pose changed")
-# TODO
-#          << "\nposition = "
-#          << feedback.pose.position.x
-#          << ", " << feedback.pose.position.y
-#          << ", " << feedback.pose.position.z
-#          << "\norientation = "
-#          << feedback.pose.orientation.w
-#          << ", " << feedback.pose.orientation.x
-#          << ", " << feedback.pose.orientation.y
-#          << ", " << feedback.pose.orientation.z
-#          << "\nframe: " << feedback.header.frame_id
-#          << " time: " << feedback.header.stamp.sec << "sec, "
-#          << feedback.header.stamp.nsec << " nsec" )
-    elif feedback.event_type == InteractiveMarkerFeedback.MOUSE_DOWN:
-        rospy.loginfo( s + ": mouse down" + mp + "." )
-    elif feedback.event_type == InteractiveMarkerFeedback.MOUSE_UP:
-        rospy.loginfo( s + ": mouse up" + mp + "." )
+#     if feedback.event_type == InteractiveMarkerFeedback.BUTTON_CLICK:
+#         rospy.loginfo( s + ": button click" + mp + "." )
+#     elif feedback.event_type == InteractiveMarkerFeedback.MENU_SELECT:
+#         rospy.loginfo( s + ": menu item " + str(feedback.menu_entry_id) + " clicked" + mp + "." )
+#     elif feedback.event_type == InteractiveMarkerFeedback.POSE_UPDATE:
+#         rospy.loginfo( s + ": pose changed")
+# # TODO
+# #          << "\nposition = "
+# #          << feedback.pose.position.x
+# #          << ", " << feedback.pose.position.y
+# #          << ", " << feedback.pose.position.z
+# #          << "\norientation = "
+# #          << feedback.pose.orientation.w
+# #          << ", " << feedback.pose.orientation.x
+# #          << ", " << feedback.pose.orientation.y
+# #          << ", " << feedback.pose.orientation.z
+# #          << "\nframe: " << feedback.header.frame_id
+# #          << " time: " << feedback.header.stamp.sec << "sec, "
+# #          << feedback.header.stamp.nsec << " nsec" )
+#     elif feedback.event_type == InteractiveMarkerFeedback.MOUSE_DOWN:
+#         rospy.loginfo( s + ": mouse down" + mp + "." )
+#     elif feedback.event_type == InteractiveMarkerFeedback.MOUSE_UP:
+#         rospy.loginfo( s + ": mouse up" + mp + "." )
     server.applyChanges()
 
 
@@ -148,16 +156,18 @@ def json_callback(feedback):
 def button_callback(feedback):
     global name_image
     global name_cam
-    global number_image
+    global number_image, handle, niic, server
     number_image += 1
+
+    if number_image == niic - 1:
+        server.erase("context_menu")
+        menu_handler.insert("Calibrate intrinsic parameters", callback=intrinsic_calibration_callback)
+        makeMenuMarker(Point(0, 0, 0))
+        server.applyChanges()
+
+
     name_image = "left_camera"
     name_cam = "left"
-
-    rospy.Subscriber('left/image_raw', Image, image_callback)
-    rospy.Subscriber('center/image_raw', Image, image_callback_1)
-    rospy.Subscriber('center2/image_raw', Image, image_callback_2)
-    rospy.Subscriber('five/image_raw', Image, image_callback_3)
-    rospy.Subscriber('right/image_raw', Image, image_callback_4)
 
 
 def image_callback(msg):
@@ -255,36 +265,51 @@ class AutoTree(dict):
 
 if __name__=="__main__":
 
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-niic", "--intrinsic_minimum_image", help="Minimum number of images required to perform an intrinsic calibration for all available cameras", type=int, required=True)
+    args = vars(ap.parse_args())
+    global niic
+    niic = args['intrinsic_minimum_image']
+
+
     # First of all, delete all the files in dataset folder
     home = expanduser("~")
     test = home + '/catkin_ws/dataset/*'
     r = glob.glob(test)
-    print("files")
-    print(r)
     for i in r:
         os.remove(i)
 
     rospy.init_node("basic_controls")
     br = TransformBroadcaster()
+
+    global name_cam
+    name_cam = "first"
+
+    rospy.Subscriber('left/image_raw', Image, image_callback)
+    rospy.Subscriber('center/image_raw', Image, image_callback_1)
+    rospy.Subscriber('center2/image_raw', Image, image_callback_2)
+    rospy.Subscriber('five/image_raw', Image, image_callback_3)
+    rospy.Subscriber('right/image_raw', Image, image_callback_4)
      
     global number_image
     global data
+    global handle
     number_image = -1
     data = AutoTree()
     data['calibration_config']['calibration_pattern']['size'] = 0.019
     data['calibration_config']['calibration_pattern']['dimensions'] = {0: 9, 1: 6}
     data['sensors'] = {'left_camera': {'camera_info': {}}, 'right_camera': {'camera_info': {}}}
 
-    i = 0
+    # i = 0\
 
     # create a timer to update the published transforms
-    rospy.Timer(rospy.Duration(0.01), frameCallback)
+    rospy.Timer(rospy.Duration(1), frameCallback)
+
 
     server = InteractiveMarkerServer("basic_controls")
 
     menu_handler.insert("Collect Data", callback=button_callback)
     menu_handler.insert("Save Json File", callback=json_callback)
-
     makeMenuMarker(Point(0, 0, 0))
 
     server.applyChanges()

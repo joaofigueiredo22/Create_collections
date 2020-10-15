@@ -3,10 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="484ce339-c15f-4d8b-857c-6d3752edb0b5" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/launch/stereo_node.launch" beforeDir="false" afterPath="$PROJECT_DIR$/launch/stereo_node.launch" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/basic_controls.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/basic_controls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/stereo.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/stereo.cpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -20,7 +17,7 @@
   <component name="ProjectId" id="1ieNUDi7P2XiY3BROvaRrxSSFGT" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../camera_umd" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Documentos/TESE/Prática/Two_or_more_cameras_calibration" />
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RunDashboard">
@@ -53,7 +50,14 @@
       <option name="project" value="LOCAL" />
       <updated>1602691988879</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="serious code cleaning tasks + syncronized all data frame rate from cameras + clean dataset folder before everything">
+      <created>1602701186538</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1602701186538</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -69,6 +73,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="w" />
-    <option name="LAST_COMMIT_MESSAGE" value="w" />
+    <MESSAGE value="serious code cleaning tasks + syncronized all data frame rate from cameras + clean dataset folder before everything" />
+    <option name="LAST_COMMIT_MESSAGE" value="serious code cleaning tasks + syncronized all data frame rate from cameras + clean dataset folder before everything" />
   </component>
 </project>
